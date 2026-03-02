@@ -1,0 +1,28 @@
+# ----- Datasets & raw data -----
+/model/data/
+/model/checkouts/
+
+# ----- Model weights & exports -----
+*.pt
+*.pth
+*.onnx
+*.onnx.data
+/code/output/
+/model/output/
+/app/backend/models/
+
+# ----- Notebook artifacts -----
+.ipynb_checkpoints/
+
+# ----- Python -----
+__pycache__/
+*.pyc
+*.pyo
+
+# ----- Node / JS -----
+node_modules/
+
+# ----- OS / editor -----
+.DS_Store
+.env
+.env.*
