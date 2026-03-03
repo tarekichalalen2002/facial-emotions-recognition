@@ -46,8 +46,8 @@ class FERClassifier(nn.Module):
 # ---------------------------------------------------------------------------
 
 SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
-WEIGHTS_PATH = os.path.join(SCRIPT_DIR, "..",  "output", "fer_model_transfered_knowledge.pth")
-ONNX_PATH    = os.path.join(SCRIPT_DIR, "..",  "output", "fer_model_transfered_knowledge.onnx")
+WEIGHTS_PATH = os.path.join(SCRIPT_DIR, "..",  "output", "affectNet-7-emotions.pth")
+ONNX_PATH    = os.path.join(SCRIPT_DIR, "..",  "output", "affectNet-7-emotions.onnx")
 
 
 # ---------------------------------------------------------------------------
