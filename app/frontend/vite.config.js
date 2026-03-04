@@ -7,8 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/cnn': 'http://localhost:3000',
-      '/vit': 'http://localhost:3000',
+      '/api/': 'http://localhost:3000',
     },
   },
 })
