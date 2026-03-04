@@ -5,6 +5,24 @@ const ffmpegStatic = require('ffmpeg-static');
 // Use the bundled ffmpeg binary — no system install required
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
+/**
+ * Detect the container format from the first bytes of the buffer (magic bytes).
+ * Required for piped stdin input where ffmpeg cannot seek to probe the format.
+ */
+function detectFormat(buffer) {
+    // WebM: 1A 45 DF A3
+    if (buffer[0] === 0x1A && buffer[1] === 0x45 && buffer[2] === 0xDF && buffer[3] === 0xA3)
+        return 'webm'
+    // MP4 / MOV: 'ftyp' box at offset 4  (66 74 79 70)
+    if (buffer[4] === 0x66 && buffer[5] === 0x74 && buffer[6] === 0x79 && buffer[7] === 0x70)
+        return 'mp4'
+    // AVI: RIFF header  52 49 46 46
+    if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46)
+        return 'avi'
+    // MKV: same EBML header as WebM but different DocType — treat as matroska
+    return 'mp4' // safe default
+}
+
 // JPEG frame boundary markers
 const SOI = Buffer.from([0xff, 0xd8, 0xff]); // Start Of Image
 const EOI = Buffer.from([0xff, 0xd9]);        // End Of Image
@@ -47,7 +65,7 @@ const extractImagesFromVideo = (videoBuffer, fps = 5) => {
         const chunks = [];
 
         const proc = ffmpeg(inputStream)
-            .inputFormat('mp4')
+            .inputFormat(detectFormat(videoBuffer))
             .fps(fps)
             .format('image2pipe')
             .videoCodec('mjpeg')
