@@ -7,7 +7,7 @@ const app = express();
 const CNNRouter = require('./routes/cnn');
 const ViTRouter = require('./routes/vit');
 
-const FRONTEND_DIST = path.join(__dirname, '../frontend/dist');
+const FRONTEND_DIST = path.join(__dirname, 'views/dist');
 
 app.use(cors());
 app.use(express.json());
