@@ -8,30 +8,38 @@ const CASCADE_FS_PATH = '/haarcascade_frontalface_default.xml';
 
 let cvReady = false;
 let classifier = null;
+let initPromise = null;  // shared promise — prevents duplicate concurrent initialisation
 
 /**
  * Wait for the OpenCV WASM module to initialise, then load the cascade once.
+ * All concurrent callers share the same promise so the WASM FS file is
+ * created exactly once even when many frames are processed in parallel.
  */
 async function initCV() {
     if (cvReady) return;
+    if (initPromise) return initPromise;
 
-    await new Promise((resolve) => {
-        if (cv.Mat) {
-            resolve();
-        } else {
-            cv.onRuntimeInitialized = resolve;
-        }
-    });
+    initPromise = (async () => {
+        await new Promise((resolve) => {
+            if (cv.Mat) {
+                resolve();
+            } else {
+                cv.onRuntimeInitialized = resolve;
+            }
+        });
 
-    // Mount the XML into the WASM virtual filesystem so CascadeClassifier can read it
-    const xmlData = fs.readFileSync(CASCADE_PATH);
-    cv.FS_createDataFile('/', 'haarcascade_frontalface_default.xml', xmlData, true, false, false);
+        // Mount the XML into the WASM virtual filesystem so CascadeClassifier can read it
+        const xmlData = fs.readFileSync(CASCADE_PATH);
+        cv.FS_createDataFile('/', 'haarcascade_frontalface_default.xml', xmlData, true, false, false);
 
-    classifier = new cv.CascadeClassifier();
-    classifier.load(CASCADE_FS_PATH);
+        classifier = new cv.CascadeClassifier();
+        classifier.load(CASCADE_FS_PATH);
 
-    cvReady = true;
-    console.log('Viola-Jones face detector loaded.');
+        cvReady = true;
+        console.log('Viola-Jones face detector loaded.');
+    })();
+
+    return initPromise;
 }
 
 /**
